@@ -3,7 +3,7 @@
 #include "LineSegment.h"
 #include <vector>
 #include <SDL_opengl.h>
-#include "Circle.h"
+
 
 struct Colour
 {
@@ -40,8 +40,6 @@ class Renderer
 public:
 	Renderer();
 	void Render(LineSegment& line);
-	void Render(Circle* circle, float rotation);
-	void Render(Circle* circle);
 	void Render(LineSegment* line);
 
 	void Render(std::vector<LineSegment*> lines);

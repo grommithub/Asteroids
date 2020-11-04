@@ -1,7 +1,6 @@
 #include "Renderer.h"
 #include "Circle.h"
 
-#define PI 3.1415962f
 #define ToRadians(n) n / PI * 180
 #define ToDegrees(n) n /180 * PI
 
@@ -17,20 +16,34 @@ void Renderer::Render(LineSegment& line)
 	Render(&line);
 }
 
-void Renderer::Render(Circle* circle, float rotation)
-{
-	glBegin(GL_LINE_LOOP);
+//void Renderer::Render(Circle* circle, float rotation)
+//{
+//	glBegin(GL_LINE_LOOP);
+//
+//	glVertex2f(circle->center->x, circle->center->y);
+//
+//	for (int i = 0; i < 360; i += 360 / 10)
+//	{
+//		float degInRad = i * 3.1415926f / 180;
+//		glVertex2f(cos(degInRad + rotation * 3.1415962f / 180) * circle->radius + circle->center->x, sin(degInRad + rotation * 3.1415962f / 180) * circle->radius + circle->center->y);
+//	}
+//
+//	glEnd();
+//}
 
-	glVertex2f(circle->center->x, circle->center->y);
-
-	for (int i = 0; i < 360; i+= 360/10)
-	{
-		float degInRad = i * 3.1415926f / 180;
-		glVertex2f(cos(degInRad + rotation * 3.1415962f / 180) * circle->radius + circle->center->x, sin(degInRad + rotation * 3.1415962f / 180) * circle->radius + circle->center->y);
-	}
-
-	glEnd();
-}
+//void Renderer::Render(Circle* circle)
+//{
+//
+//	glBegin(GL_LINE_LOOP);
+//
+//	for (int i = 0; i < 360; i+= 10)
+//	{
+//		float degInRad = i * 3.1415926f / 180;
+//		glVertex2f(cos(degInRad) * circle->radius + circle->center->x, sin(degInRad) * circle->radius + circle->center->y);
+//	}
+//
+//	glEnd();
+//}
 
 void Renderer::Render(LineSegment* line)
 {

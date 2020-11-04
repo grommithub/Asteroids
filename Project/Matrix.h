@@ -17,7 +17,7 @@ public:
 	void SetScale(Vector2 scale);
 	void SetRotation(float degrees);
 	Matrix Product(Matrix& m);
-	Matrix GetRotationMatrix(float degrees);
+	static Matrix GetRotationMatrix(float degrees);
 	void SetRotation();
 	void SetOffset(Vector2& v);
 
