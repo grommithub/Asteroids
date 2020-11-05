@@ -18,8 +18,9 @@ public:
 	void SetRotation(float degrees);
 	Matrix Product(Matrix& m);
 	static Matrix GetRotationMatrix(float degrees);
+	void SetOffset(Vector2 v);
 	void SetRotation();
-	void SetOffset(Vector2& v);
+	//void SetOffset(Vector2& v);
 
 	Vector2 GetTransformedVector(Vector2 v);
 };

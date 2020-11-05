@@ -30,7 +30,7 @@ public:
 
 	Vector2 GetOffsetByAlignment();
 
-	//Vector2 GetTopLeft();
+	Vector2 GetTopLeft();
 	//Vector2 GetBottomLeft();
 	//Vector2 GetTopRight();
 	//Vector2 GetBottomRight();

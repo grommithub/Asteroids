@@ -82,7 +82,7 @@ Matrix Matrix::GetRotationMatrix(float degrees)
 	return m;
 }
 
-void Matrix::SetOffset(Vector2& v)
+void Matrix::SetOffset(Vector2 v)
 {
 	_scalars[2][0] = v.x;
 	_scalars[2][1] = v.y;

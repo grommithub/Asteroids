@@ -24,6 +24,8 @@ Game::Game()
 	mMouseX = mMouseY = 0;
     mMouseButton = mMouseState = 0;
 
+    mid = Vector2(mW / 2, mH / 2);
+
 
 
 
@@ -31,10 +33,15 @@ Game::Game()
 	//TEST STUFF
 	//-------------------------------------------------------------------
     rect = new Rect(50.0f, 100.0f);
+    rect->center = &mid;
+
+
+    std::cout << mCounter << std::endl;
 }
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void Game::ChangeSize(int w, int h){
+void Game::ChangeSize(int w, int h)
+{
     mW = w, mH = h;
 	glViewport(0,0,mW,mH);                         // Reset Viewport
 	glMatrixMode(GL_PROJECTION); glLoadIdentity(); // Reset The Projection Matrix
@@ -49,6 +56,13 @@ void Game::Update()
 
 	mouse.x = mMouseMotionX;
 	mouse.y = mMouseMotionY;
+
+    rect->rotation = (float)mCounter;
+
+    if (CollisionManager::CheckCollision(mouse, *rect)) 
+    {
+        Draw_MtxText(mouse.x, mouse.y + 50.0f, "COLLISION");
+    }
 
 }
 //---------------------------------------------------------------------

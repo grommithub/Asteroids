@@ -10,6 +10,7 @@
 #include "Rectangle.h"
 #include "Renderer.h"
 #include "Player.h"
+#include "CollisionManager.h"
 //---------------------------------------------------------------------
 #define For(i,N) for (int (i) = 0; (i) < (N); (i)++)
 //---------------------------------------------------------------------
@@ -27,7 +28,7 @@ public:
     
     Rect* rect;
 	Vector2 mouse;
-
+    Vector2 mid;
 
 
 

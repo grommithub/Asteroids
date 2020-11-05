@@ -10,7 +10,7 @@ void Rect::SetHeight(float h)
 	half.y = h / 2;
 }
 
-Rect::Rect(float w, float h) : alignment(Alignment::MIDDLE)
+Rect::Rect(float w, float h) : alignment(Alignment::TOPMID)
 {
 	half.x = w;
 	half.y = h;
@@ -32,34 +32,39 @@ Vector2 Rect::GetOffsetByAlignment()
 	switch (alignment)
 	{
 	case Rect::TOPLEFT:
-		return Vector2(-half.x, -half.y);
+		return Vector2(-half.x, -half.y) / -2;
 		break;
 	case Rect::TOPMID:
-		return Vector2(0.0f, -half.y);
+		return Vector2(0.0f, -half.y) / -2;
 		break;
 	case Rect::TOPRIGHT:
-		return Vector2(half.x, -half.y);
+		return Vector2(half.x, -half.y) / -2;
 		break;
 	case Rect::MIDDLELEFT:
-		return Vector2(-half.x, 0.0f);
+		return Vector2(-half.x, 0.0f) / -2;
 		break;
 	case Rect::MIDDLE:
-		return Vector2(0.0f, 0.0f);
+		return Vector2(0.0f, 0.0f) / -2;
 		break;
 	case Rect::BOTTOMLEFT:
-		return Vector2(-half.x, half.y);
+		return Vector2(-half.x, half.y) / -2;
 		break;
 	case Rect::BOTTOMMID:
-		return Vector2(0.0f, half.y);
+		return Vector2(0.0f, half.y) / -2;
 		break;
 	case Rect::BOTTOMRIGHT:
-		return Vector2(half.x, half.y);
+		return Vector2(half.x, half.y) / -2;
 		break;
 	default:
 		std::cout << "This algnment doesn't exist" << std::endl;
 		return Vector2(0.0f, 0.0f);
 		break;
 	}
+}
+
+Vector2 Rect::GetTopLeft()
+{
+	return *center - half;
 }
 
 std::vector<LineSegment> Rect::GetLinesToRender()
@@ -71,7 +76,7 @@ std::vector<LineSegment> Rect::GetLinesToRender()
 	{
 		For(y, 2)
 		{
-			corners.push_back(Vector2((x - 1) * half.x, (y - 1) * half.y));
+			corners.push_back(Vector2((-1 + (2*x)) * half.x, (-1 + (2*y)) * half.y));
 		}
 	}
 
@@ -86,10 +91,12 @@ std::vector<LineSegment> Rect::GetLinesToRender()
 
 	For(i, corners.size())
 	{
-		corners[i] += offset;
+		corners[i] += offset * 2;
 		corners[i] = m.GetTransformedVector(corners[i]);
-		corners[i] = corners[i] + c;
+		corners[i] = corners[i] + c -offset;
 	}
+
+
 
 	std::vector<LineSegment> lines;
 	LineSegment left = LineSegment(corners[0], corners[1]);
