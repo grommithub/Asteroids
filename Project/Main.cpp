@@ -77,8 +77,14 @@ static void mainLoop ()
 					//---------------------------------
                     if (key == SDLK_ESCAPE){quit = true; break;}
                     //---------------------------------
-					if (key < 128) G.NormalKeys(key,state);
-					else G.SpecialKeys(key,state);
+					if (key < 128) G.NormalKeysDown(key,state);
+					else G.SpecialKeysDown(key,state);
+					break;
+				case SDL_KEYUP:
+					key = event.key.keysym.sym;
+					state = SDL_GetModState();
+					if (key < 128) G.NormalKeysUp(key, state);
+					else G.SpecialKeysUp(key, state);
 					break;
 					//---------------------------------
 				case SDL_QUIT: quit = true; break;
@@ -100,7 +106,7 @@ int main(int argc, char *argv[])
 {
 	createSurface();
 	G.ChangeSize(G.mW, G.mH);
-	glClearColor(0.f,0.f,0.2f,1.f);
+	glClearColor(0.f,0.f,0.0f,1.f);
 	mainLoop();
 	return 0;
 }

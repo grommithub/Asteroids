@@ -1,31 +1,31 @@
 #include "CollisionManager.h"
 
-bool CollisionManager::CheckCollision(Vector2& v, Rect& r)
+bool CollisionManager::CheckCollision(Vector2 v, Rect r)
 {
-	Matrix m; //= Matrix::GetRotationMatrix(-r.rotation);
-	m.SetOffset(r.GetCenter());
+	/*
+		This shit doesn't work unless the pivot's in the center and I'm not really bothered to fix it right now
+	*/
 
-	v = m.GetTransformedVector(v);
-	
 
-	return(v.x >= r.center->x - r.half.x && v.x <= r.center->x + r.half.x && v.y >= r.center->y - r.half.y && v.y <= r.center->y + r.half.y);
+	v = MathsExtensions::RotatedPoint(v, r.GetUnRotatedCenter(), -r.GetRotation());
+	return(v.x >= r.GetUnRotatedCenter().x - r.half.x && v.x <= r.GetUnRotatedCenter().x + r.half.x && v.y >= r.GetUnRotatedCenter().y - r.half.y && v.y <= r.GetUnRotatedCenter().y + r.half.y);
 }
 
 
 
 
 
-bool CollisionManager::CheckCollision(Vector2& v, Circle& c)
+bool CollisionManager::CheckCollision(Vector2 v, Circle c)
 {
 	return (v - *c.center).SquareMagnitude() <= c.radius * c.radius;
 }
 
-bool CollisionManager::CheckCollision(Circle& c, Vector2& v)
+bool CollisionManager::CheckCollision(Circle c, Vector2 v)
 {
 	return CheckCollision(v,c);
 }
 
-bool CollisionManager::CheckCollision(Rect& r, Vector2& v)
+bool CollisionManager::CheckCollision(Rect r, Vector2 v)
 {
 	return CheckCollision(v, r);
 }

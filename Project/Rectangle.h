@@ -21,7 +21,7 @@ public:
 	Alignment alignment;
 
 	Vector2 half;
-
+	Vector2 GetUnRotatedCenter();
 	void SetWidth(float w);
 	void SetHeight(float h);
 	Rect(float w, float h);

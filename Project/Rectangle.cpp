@@ -1,5 +1,10 @@
 #include "Rectangle.h"
 
+Vector2 Rect::GetUnRotatedCenter()
+{
+	return GetPivotPoint() + GetOffsetByAlignment();
+}
+
 void Rect::SetWidth(float w)
 {
 	half.x = w / 2;
@@ -10,7 +15,7 @@ void Rect::SetHeight(float h)
 	half.y = h / 2;
 }
 
-Rect::Rect(float w, float h) : alignment(Alignment::TOPMID)
+Rect::Rect(float w, float h) : alignment(Alignment::MIDDLE)
 {
 	half.x = w;
 	half.y = h;
@@ -32,28 +37,28 @@ Vector2 Rect::GetOffsetByAlignment()
 	switch (alignment)
 	{
 	case Rect::TOPLEFT:
-		return Vector2(-half.x, -half.y) / -2;
+		return Vector2(-half.x, -half.y);
 		break;
 	case Rect::TOPMID:
-		return Vector2(0.0f, -half.y) / -2;
+		return Vector2(0.0f, -half.y);
 		break;
 	case Rect::TOPRIGHT:
-		return Vector2(half.x, -half.y) / -2;
+		return Vector2(half.x, -half.y);
 		break;
 	case Rect::MIDDLELEFT:
-		return Vector2(-half.x, 0.0f) / -2;
+		return Vector2(-half.x, 0.0f);
 		break;
 	case Rect::MIDDLE:
-		return Vector2(0.0f, 0.0f) / -2;
+		return Vector2(0.0f, 0.0f);
 		break;
 	case Rect::BOTTOMLEFT:
-		return Vector2(-half.x, half.y) / -2;
+		return Vector2(-half.x, half.y);
 		break;
 	case Rect::BOTTOMMID:
-		return Vector2(0.0f, half.y) / -2;
+		return Vector2(0.0f, half.y);
 		break;
 	case Rect::BOTTOMRIGHT:
-		return Vector2(half.x, half.y) / -2;
+		return Vector2(half.x, half.y);
 		break;
 	default:
 		std::cout << "This algnment doesn't exist" << std::endl;
@@ -70,7 +75,7 @@ Vector2 Rect::GetTopLeft()
 std::vector<LineSegment> Rect::GetLinesToRender()
 {
 	std::vector<Vector2> corners;
-	auto offset = GetOffsetByAlignment();
+	auto offset = GetOffsetByAlignment() / -2;
 
 	For(x, 2)
 	{
@@ -80,7 +85,7 @@ std::vector<LineSegment> Rect::GetLinesToRender()
 		}
 	}
 
-	Matrix m = Matrix::GetRotationMatrix(rotation);
+	Matrix m = Matrix::GetRotationMatrix(GetRotation());
 	m.SetOffset(offset);
 
 	Vector2 c;

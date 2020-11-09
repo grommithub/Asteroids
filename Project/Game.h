@@ -11,6 +11,9 @@
 #include "Renderer.h"
 #include "Player.h"
 #include "CollisionManager.h"
+#include "Bullet.h"
+
+#include "Asteroid.h"
 //---------------------------------------------------------------------
 #define For(i,N) for (int (i) = 0; (i) < (N); (i)++)
 //---------------------------------------------------------------------
@@ -26,8 +29,7 @@ public:
     
     
     
-    Rect* rect;
-	Vector2 mouse;
+    Vector2 mouse;
     Vector2 mid;
 
 
@@ -37,17 +39,26 @@ public:
 
 
 
-
+    std::vector<Asteroid*> asteroids;
+    std::vector<Bullet*> bullets;
 
 
 	Player* player;
 	Renderer renderer;
+
+
+
     void  ChangeSize(int w, int h);
 	void Update();
     void  Draw();
+    void ConstrainStuff();
+
+    void SpawnAsteroids();
     //-------------------------------------------------------
-    void  NormalKeys(unsigned char key, int state);
-    void  SpecialKeys(int key, int state);
+    void  NormalKeysDown(unsigned char key, int state);
+    void  NormalKeysUp(unsigned char key, int state);
+    void  SpecialKeysDown(int key, int state);
+    void  SpecialKeysUp(int key, int state);
     void  Mouse(int button, int state, int x, int y);
     void  MouseMotion(int x, int y);
     //-------------------------------------------------------
@@ -61,6 +72,7 @@ public:
     int   mMouseButton, mMouseState;
     //-------------------------------------------------------
     char  (*mMtxFont)[7][5];
+
     //-------------------------------------------------------
 };
 //---------------------------------------------------------------------

@@ -14,29 +14,26 @@
 #include "Matrix.h"
 Game::Game()
 {
+	mW = 1280, mH = 720.f;
 	player = new Player();
+
+    player->SetPosition(Vector2(mW / 2.0f, mH / 2.0f));
 
 	Matrix m = Matrix(3);
 	mMtxFont = new char[128][7][5];
 	InitMtxFont();
 	mCounter = 0;
-	mW = 1280, mH = 720.f;
 	mMouseX = mMouseY = 0;
     mMouseButton = mMouseState = 0;
 
     mid = Vector2(mW / 2, mH / 2);
 
-
-
+    SpawnAsteroids();
 
 	//-------------------------------------------------------------------
 	//TEST STUFF
 	//-------------------------------------------------------------------
-    rect = new Rect(50.0f, 100.0f);
-    rect->center = &mid;
 
-
-    std::cout << mCounter << std::endl;
 }
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
@@ -50,20 +47,81 @@ void Game::ChangeSize(int w, int h)
 }
 void Game::Update()
 {
-	player->SetPosition(45.0f, 45.0f);
-	player->SetRotation(mCounter / 1.0f);
-	player->SetScale(Vector2(sinf((float)mCounter / 30.0f), 1.0f));
+	//player->SetPosition(45.0f, 45.0f);
+	//player->SetRotation(mCounter / 1.0f);
+	//player->SetScale(Vector2(sinf((float)mCounter / 30.0f), 1.0f));
 
 	mouse.x = mMouseMotionX;
 	mouse.y = mMouseMotionY;
 
-    rect->rotation = (float)mCounter;
 
-    if (CollisionManager::CheckCollision(mouse, *rect)) 
+    player->Update();
+    if (player->GetShoot())
     {
-        Draw_MtxText(mouse.x, mouse.y + 50.0f, "COLLISION");
+        bullets.push_back(new Bullet(player->GetRotation(), player->GetPosition()));
     }
 
+    for (auto a : asteroids)
+    {
+        a->Update();
+    }
+
+    for (auto b : bullets)
+    {
+        b->Update();
+    }
+
+
+    //----------------------------------------------------------------
+    // Collisions
+    //----------------------------------------------------------------
+
+    For(i, bullets.size())
+    {
+        For(j, asteroids.size())
+        {
+            if (CollisionManager::CheckCollision(bullets[i]->GetPosition(), asteroids[j]->circle))
+            {
+                Vector2 bulletDir = bullets[i]->direction / bullets[i]->speed;
+                for (int k = 0; k < 2; k++)
+                {
+
+                    float degrees = (-1 + (2 * k)) * 90.0f;
+                    int type = (int)asteroids[j]->size + 1;
+                    if (type == (int)Asteroid::NOTHING) break;
+                    Matrix m = Matrix::GetRotationMatrix(degrees);
+
+                    std::cout << type << std::endl;
+
+                    asteroids.push_back(new Asteroid(asteroids[j]->GetPosition(), m.GetTransformedVector(bulletDir), type));
+
+                }
+
+
+
+                *bullets[i] = *bullets[bullets.size() - 1];
+                delete bullets[bullets.size() - 1];
+                bullets.pop_back();
+
+                *asteroids[j] = *asteroids[asteroids.size() - 1];
+                delete asteroids[asteroids.size() - 1];
+                asteroids.pop_back();
+
+                For(k, asteroids.size())
+                {
+                    asteroids[k]->circle.SetCenter(asteroids[k]->_position);
+                }
+                goto NEXT;
+
+            }
+
+        }
+    NEXT:
+        char _;
+    }
+
+    ConstrainStuff();
+    if (asteroids.size() < 1) SpawnAsteroids();
 }
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
@@ -76,9 +134,23 @@ void Game::Draw(void)
     
 
 	renderer.Render(player->GetLinesToRender());
+    //renderer.Render(player->collisionBox.GetLinesToRender());
 
-    renderer.Render(rect->GetLinesToRender());
 
+
+
+
+    for (auto a : asteroids)
+    {
+        renderer.Render(a->GetLinesToRender());
+       // renderer.Render(a->circle.GetLinesToRender());
+    }
+
+    for (auto b : bullets)
+    {
+        renderer.Render(b->GetLinesToRender());
+        //renderer.Render(b->r.GetLinesToRender());
+    }
 
     //--------------------------------------------Geometry
 //    glLineWidth(3);
@@ -111,29 +183,99 @@ void Game::Draw(void)
 //                 //printf("[ret = %u\n",ret););
 //	//--------------------------------------------	
     mCounter++;
-//    //--------------------------------------------	
+//    
+//--------------------------------------------	
 //	
 }
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-void Game::NormalKeys(unsigned char key, int state)
+void Game::ConstrainStuff()
 {
-	if (key >= SDLK_0 && key <= SDLK_9){}
-	if (key == SDLK_RETURN){}//Return
+
+    {
+        if (player->rightMostPoint < 0.0f)
+            player->SetPositionX(player->_position.x + mW + 30.0f);
+        else if (player->leftMostPoint > mW)
+            player->SetPositionX(player->_position.x - mW - 30.0f);
+
+        if (player->lowestPoint < 0.0f)
+            player->SetPositionY(player->_position.y + mH + 30.0f);
+        else if (player->highestPoint > mH)
+            player->SetPositionY(player->_position.y - mH - 30.0f);
+
+    }
+
+
+
+    for (auto a : asteroids)
+    {
+        if (a->rightMostPoint < 0.0f)
+            a->SetPositionX(a->_position.x + mW + a->circle.radius * 2);
+        else if (a->leftMostPoint > mW)
+            a->SetPositionX(a->_position.x - mW - a->circle.radius * 2);
+
+        if (a->lowestPoint < 0.0f)
+            a->SetPositionY(a->_position.y + mH + a->circle.radius * 2);
+        else if (a->highestPoint > mH)
+            a->SetPositionY(a->_position.y - mH - a->circle.radius * 2);
+    }
+
+    for (auto a : bullets)
+    {
+        if (a->_position.x < 0.0f)
+            a->SetPositionX(a->_position.x + mW + 30.0f);
+        else if (a->_position.x > mW)
+            a->SetPositionX(a->_position.x - mW - 30.0f);
+
+        if (a->_position.y < 0.0f)
+            a->SetPositionY(a->_position.y + mH + 30.0f);
+        else if (a->_position.y > mH)
+            a->SetPositionY(a->_position.y - mH - 30.0f);
+    }
+}
+void Game::SpawnAsteroids()
+{
+    For(i, 10)
+    {
+        float distance = 250.0f;
+
+        Matrix m = Matrix::GetRotationMatrix(rand() % 360);
+
+        auto dir = m.GetTransformedVector(Vector2::Up());
+
+        asteroids.push_back(new Asteroid(mid + Vector2((float)sin(36 * i), (float)cos(36 * i)) * distance, dir, Asteroid::Sizes::BIG));
+    }
 }
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void Game::SpecialKeys(int key, int state)
+void Game::NormalKeysDown(unsigned char key, int state)
 {
-    if (key == SDLK_LEFT)
-	{
-	/*	renderer.SetDrawColour(255, 255, 255);
-		Draw_MtxText(10.0f, 10.0f, "I AM HOLDING LEFT");*/
-		mMouseMotionX = mW / 2;
-	}
-    if (key == SDLK_RIGHT){}
-    if (key == SDLK_UP){}
-    if (key == SDLK_DOWN){}
+    player->OnKeyDown(key);
+
+}
+void Game::NormalKeysUp(unsigned char key, int state)
+{
+    player->OnKeyUp(key);
+}
+//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+void Game::SpecialKeysDown(int key, int state)
+{
+    player->OnKeyDown(key);
+
+
+ //   if (key == SDLK_LEFT)
+	//{
+	/////*	renderer.SetDrawColour(255, 255, 255);
+	////	Draw_MtxText(10.0f, 10.0f, "I AM HOLDING LEFT");*/
+	////	mMouseMotionX = mW / 2;
+ //       std::cout << key <<' '<< state << std::endl;
+	//}
+ //   if (key == SDLK_RIGHT){}
+ //   if (key == SDLK_UP){}
+ //   if (key == SDLK_DOWN){}
+}
+void Game::SpecialKeysUp(int key, int state)
+{
+    player->OnKeyUp((SDL_Keycode)key);
 }
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
