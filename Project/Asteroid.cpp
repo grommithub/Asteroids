@@ -1,7 +1,7 @@
 #include "Asteroid.h"
 
 
-Asteroid::Asteroid(Vector2 position, Vector2 d, int s) : radius(0.0f), circle(0.0), minsegments(6), maxSegments(10), speed(1.0f), rotationSpeed(rand() % (100 - 50) * .1f)
+Asteroid::Asteroid(Vector2 position, Vector2 d, int s) : radius(0.0f), circle(0.0), minsegments(6), maxSegments(10), speed(2.0f), rotationSpeed(rand() % (100 - 50) * .1f)
 {
 	size = s;
 	switch (s)

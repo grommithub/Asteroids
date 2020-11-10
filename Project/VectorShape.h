@@ -12,7 +12,7 @@ protected:
 public:
 	Vector2 _position;
 	VectorShape(Vector2 position = Vector2());
-	std::vector<LineSegment> GetLinesToRender();
+	virtual std::vector<LineSegment> GetLinesToRender();
 	void SetPosition(Vector2 position);
 	void SetPosition(float x, float y) { _position = Vector2(x, y); }
 	void SetPositionX(float x) { _position.x = x; }

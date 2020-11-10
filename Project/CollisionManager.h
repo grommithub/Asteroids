@@ -12,5 +12,9 @@ struct CollisionManager
 
 	static bool CheckCollision(Vector2 v, Circle c);
 	static bool CheckCollision(Circle r, Vector2 v);
+
+	static bool CheckCollision(Circle c, Circle c2);
+	
+	//static bool CheckCollision(Rect r, Circle c);
 };
 

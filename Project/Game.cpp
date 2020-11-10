@@ -42,7 +42,7 @@ void Game::ChangeSize(int w, int h)
     mW = w, mH = h;
 	glViewport(0,0,mW,mH);                         // Reset Viewport
 	glMatrixMode(GL_PROJECTION); glLoadIdentity(); // Reset The Projection Matrix
-	glOrtho(0.0f,mW,mH,0.0f,-1.0f,.0f);           // Create Ortho View (0,0 At Top Left)
+	glOrtho(0.0f,mW,mH,0.0f,-1.0f,.0f);            // Create Ortho View (0,0 At Top Left)
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();  // Reset The Modelview Matrix
 }
 void Game::Update()
@@ -54,11 +54,17 @@ void Game::Update()
 	mouse.x = mMouseMotionX;
 	mouse.y = mMouseMotionY;
 
-
-    player->Update();
-    if (player->GetShoot())
+    if (!lost)
     {
-        bullets.push_back(new Bullet(player->GetRotation(), player->GetPosition()));
+        player->Update();
+        if (player->up)
+        {
+            particles.push_back(new Bullet(player->GetRotation() + 180.0f + (-22.5f + (float)(rand() % 45)), player->_position, true));
+        }
+        if (player->GetShoot())
+        {
+            bullets.push_back(new Bullet(player->GetRotation(), player->GetPosition(), false));
+        }
     }
 
     for (auto a : asteroids)
@@ -71,6 +77,20 @@ void Game::Update()
         b->Update();
     }
 
+    For(i, particles.size())
+    {
+        particles[i]->Update();
+        if (particles[i]->GetShouldDie())
+        {
+            *particles[i] = *particles[particles.size() - 1];
+            delete particles[particles.size() - 1];
+            particles.pop_back();
+        }
+
+    }
+
+
+
 
     //----------------------------------------------------------------
     // Collisions
@@ -78,17 +98,35 @@ void Game::Update()
 
     For(i, bullets.size())
     {
+        if (bullets[i]->GetShouldDie())
+        {
+
+            *bullets[i] = *bullets[bullets.size() - 1];
+            delete bullets[bullets.size() - 1];
+            bullets.pop_back();
+            break;
+        }
+
         For(j, asteroids.size())
         {
             if (CollisionManager::CheckCollision(bullets[i]->GetPosition(), asteroids[j]->circle))
             {
+                score += asteroids[j]->GetPoints();
+
                 Vector2 bulletDir = bullets[i]->direction / bullets[i]->speed;
                 for (int k = 0; k < 2; k++)
                 {
 
                     float degrees = (-1 + (2 * k)) * 90.0f;
                     int type = (int)asteroids[j]->size + 1;
-                    if (type == (int)Asteroid::NOTHING) break;
+                    if (type == (int)Asteroid::NOTHING)
+                    {
+                        For(w, 10)
+                        {
+                            particles.push_back(new Bullet(360/10 * w, asteroids[j]->GetPosition(), true));
+                        }
+                        goto BREAK;
+                    }
                     Matrix m = Matrix::GetRotationMatrix(degrees);
 
                     std::cout << type << std::endl;
@@ -97,7 +135,7 @@ void Game::Update()
 
                 }
 
-
+                BREAK:
 
                 *bullets[i] = *bullets[bullets.size() - 1];
                 delete bullets[bullets.size() - 1];
@@ -120,6 +158,22 @@ void Game::Update()
         char _;
     }
 
+    for (auto a : asteroids)
+    {
+        if (CollisionManager::CheckCollision(player->collision, a->circle) && !lost)
+        {
+            lost = true;
+
+            player->SetScale(Vector2::Zero());
+
+            For(w, 100)
+            {
+                particles.push_back(new Bullet((360 / 100.0f) * w, player->GetPosition(), false));
+            }
+        }
+    }
+
+
     ConstrainStuff();
     if (asteroids.size() < 1) SpawnAsteroids();
 }
@@ -134,7 +188,7 @@ void Game::Draw(void)
     
 
 	renderer.Render(player->GetLinesToRender());
-    //renderer.Render(player->collisionBox.GetLinesToRender());
+    //renderer.Render(player->collision.GetLinesToRender());
 
 
 
@@ -152,6 +206,23 @@ void Game::Draw(void)
         //renderer.Render(b->r.GetLinesToRender());
     }
 
+    for (auto b : particles)
+    {
+        renderer.Render(b->GetLinesToRender());
+        //renderer.Render(b->r.GetLinesToRender());
+    }
+
+    if(!lost)Draw_MtxText(mW / 2, 25.0f, std::to_string(score).c_str());
+    else
+    {
+        Draw_MtxText((mW / 2) - 9  * 7.5f,  mH / 2, "GAME OVER");
+        Draw_MtxText((mW / 2) - 10 * 7.5f, (mH / 2) + 50.0f, "YOU SCORED");
+        Draw_MtxText((mW / 2) - std::to_string(score).length() * 7.5f, (mH / 2) + 100.0f, std::to_string(score).c_str());
+
+        Draw_MtxText(10.0f,10.0f,  "DAN BURT");
+
+
+    }
     //--------------------------------------------Geometry
 //    glLineWidth(3);
 //    glPointSize(10);
@@ -202,8 +273,6 @@ void Game::ConstrainStuff()
             player->SetPositionY(player->_position.y - mH - 30.0f);
 
     }
-
-
 
     for (auto a : asteroids)
     {

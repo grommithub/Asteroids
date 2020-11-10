@@ -25,6 +25,24 @@ bool CollisionManager::CheckCollision(Circle c, Vector2 v)
 	return CheckCollision(v,c);
 }
 
+bool CollisionManager::CheckCollision(Circle c, Circle c2)
+{
+	return (c.GetPivotPoint() - c2.GetPivotPoint()).SquareMagnitude() < (c.radius + c.radius) * (c.radius + c.radius);
+}
+
+//bool CollisionManager::CheckCollision(Rect r, Circle c)
+//{
+//	auto v = c.GetPivotPoint();
+//	c.SetCenter(v);
+//
+//	v = MathsExtensions::RotatedPoint(v, r.GetUnRotatedCenter(), -r.GetRotation());
+//
+//	if (CheckCollision(v, r)) return true;
+//	Vector2 dist;
+//
+//	if()
+//}
+
 bool CollisionManager::CheckCollision(Rect r, Vector2 v)
 {
 	return CheckCollision(v, r);

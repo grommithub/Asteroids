@@ -3,14 +3,19 @@
 #include "Rectangle.h"
 #include <SDL_keycode.h>
 #include "Shape2D.h"
+#include "Circle.h"
 class Player : public VectorShape
 {
 public:
 	Player();
-	Rect collisionBox;
+	Circle collision;
+
+	LineSegment thrustLines[2];
+
+	Vector2 fireEnd;
 
 	Vector2 velocity;
-	float acceleration, retardation, steeringSpeed;
+	float acceleration, retardation, steeringSpeed, flameLength, flameLengthMax;
 
 	void OnKeyDown(int key);
 	void OnKeyUp(int key);
@@ -19,5 +24,6 @@ public:
 
 	void Update();
 	bool GetShoot();
+	virtual std::vector<LineSegment> GetLinesToRender() override;
 };
 

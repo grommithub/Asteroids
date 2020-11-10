@@ -32,6 +32,8 @@ public:
     Vector2 mouse;
     Vector2 mid;
 
+    int score = 0;
+    bool lost = false;
 
 
 	//-------------------------------------------------------
@@ -41,6 +43,7 @@ public:
 
     std::vector<Asteroid*> asteroids;
     std::vector<Bullet*> bullets;
+    std::vector<Bullet*> particles;
 
 
 	Player* player;

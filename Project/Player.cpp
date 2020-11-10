@@ -1,9 +1,9 @@
 #include "Player.h"
-
-Player::Player() : collisionBox(Rect(20.0f, 30.0f)), acceleration(0.2f), retardation(1.01), steeringSpeed(5.0f),left(false),right(false),up(false),shoot(false), canShoot(true)
+#include <algorithm>
+Player::Player() : collision(Circle(15.0f)), acceleration(0.2f), retardation(1.01), steeringSpeed(5.0f),left(false),right(false),up(false),shoot(false), canShoot(true), flameLength(0.0f), flameLengthMax(60.0f)
 {
-	collisionBox.SetCenter(_position);
-	collisionBox.SetRotationReference(_rotation);
+	collision.SetCenter(_position);
+	collision.SetRotationReference(_rotation);
 
 	LineSegment topLeft;
 
@@ -26,6 +26,11 @@ Player::Player() : collisionBox(Rect(20.0f, 30.0f)), acceleration(0.2f), retarda
 
 	_lines.push_back(topLeft); _lines.push_back(topRight);
 	_lines.push_back(bottomLeft); _lines.push_back(bottomRight);
+
+
+
+	thrustLines[0].points[0] = bottomRight.Tail() - (bottomRight.Tail() + bottomRight.Head()) * 0.5f;
+	thrustLines[1].points[0] = bottomLeft.Tail() - (bottomLeft.Tail() + bottomLeft.Head()) * 0.5f;
 
 
 }
@@ -91,7 +96,6 @@ void Player::Update()
 	_position += velocity;
 	velocity /= retardation;
 
-	
 }
 
 bool Player::GetShoot()
@@ -102,4 +106,43 @@ bool Player::GetShoot()
 		return true;
 	}
 	return false;
+}
+
+std::vector<LineSegment> Player::GetLinesToRender()
+{
+	std::vector<LineSegment> lines = VectorShape::GetLinesToRender();
+
+	Matrix m;
+	m.SetScale(_scale);
+	m.SetRotation(_rotation);
+	m.SetOffset(_position);
+
+	if (up)
+	{
+		flameLength += 0.5f;
+		flameLength = std::min(flameLength, flameLengthMax);		
+	}
+	else
+	{
+		flameLength -= 1.5f;
+		flameLength = std::max(0.0f, flameLength);
+	}
+
+
+	For(i, 2)
+	{
+		float f = std::max(flameLength + (-10.0f + (float)(rand() % 20)), 0.0f);
+		thrustLines[0].points[1] = Vector2::Down() * f;
+		thrustLines[1].points[1] = Vector2::Down() * f;
+
+		LineSegment l = thrustLines[i];
+		For(j, 2)
+		{
+			l.points[j] = m.GetTransformedVector(l.points[j]);
+		}
+
+		lines.push_back(l);
+	}
+
+	return lines;
 }

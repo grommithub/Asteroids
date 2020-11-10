@@ -24,6 +24,20 @@ public:
 	Circle circle;
 	int size;
 	void Update();
+	int GetPoints()
+	{
+		switch (size)
+		{
+		case BIG:
+			return 100;
+		case MEDIUM:
+			return 75;
+		case SMALL:
+			return 50;
+		default:
+			return 0;
+		}
+	}
 private:
 
 	void SetLines();
